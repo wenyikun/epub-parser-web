@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPUB Parser</title>
+</head>
+
+<body>
+  <input type="file" title="epub" id="file-input" />
+  <script type="module">
+    import init, { EpubParser } from './pkg/epub_parser_web.js';
+
+    async function loadFile() {
+      const fileInput = document.getElementById('file-input');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+          const arrayBuffer = event.target.result;
+          const uint8Array = new Uint8Array(arrayBuffer);
+          // Initialize the WebAssembly module
+          await init();
+          // Call the Rust function
+          // const jsonMetadata = parse_epub(Array.from(uint8Array));
+          // const data = JSON.parse(jsonMetadata)
+          // console.log(data);
+          // const cover = document.createElement('img')
+          // cover.src = data.cover
+          // cover.style.display = 'block'
+          // document.body.appendChild(cover)
+          const epub = new EpubParser(uint8Array)
+          console.log(epub)
+          console.log(epub.toc[0].content)
+          console.log(epub.get_resource_str_by_path(epub.toc[0].content))
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    document.getElementById('file-input').addEventListener('change', loadFile);
+  </script>
+</body>
+
+</html>
